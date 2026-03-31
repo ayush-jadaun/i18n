@@ -17,6 +17,7 @@ import type { Config } from './config.js';
 import jwtPlugin from './plugins/jwt.js';
 import databasePlugin from './plugins/database.js';
 import { authRoutes } from './routes/auth.routes.js';
+import { orgRoutes } from './routes/org.routes.js';
 
 /**
  * Creates and configures a Fastify application instance.
@@ -26,6 +27,7 @@ import { authRoutes } from './routes/auth.routes.js';
  * 2. Database plugin — decorates `app.db` with a Drizzle connection
  * 3. JWT plugin — registers `app.jwt`, `request.jwtVerify()`, etc.
  * 4. Auth routes — `POST /api/v1/auth/register`, `login`, `refresh`, `GET /me`
+ * 5. Org routes — organization CRUD and member management under `/api/v1/orgs`
  *
  * @param config - Validated server configuration produced by {@link loadConfig}.
  * @returns A fully initialised Fastify instance, ready to call `listen()` on.
@@ -72,6 +74,7 @@ export async function createApp(config: Config) {
   // ── Feature routes ────────────────────────────────────────────────────────
 
   await app.register(authRoutes, { prefix: '/api/v1/auth' });
+  await app.register(orgRoutes, { prefix: '/api/v1/orgs' });
 
   return app;
 }

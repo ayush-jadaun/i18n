@@ -9,3 +9,4 @@
  */
 
 export { authRoutes } from './auth.routes.js';
+export { orgRoutes } from './org.routes.js';
