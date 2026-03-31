@@ -1,25 +1,23 @@
 /**
- * Format adapter for nested JSON translation files.
+ * Format adapter for nested YAML translation files.
  *
- * A nested JSON file stores translation keys as a deeply nested object tree.
- * This adapter flattens nested keys into dot-separated strings on parse and
- * unflattens them back into a nested structure on serialize.
+ * A YAML translation file stores keys as a deeply nested object tree using
+ * YAML syntax. This adapter flattens nested keys to dot-separated strings on
+ * parse and unflattens them back to a nested structure on serialize.
  *
  * @example
- * ```json
- * {
- *   "auth": {
- *     "login": {
- *       "title": "Sign In"
- *     }
- *   }
- * }
+ * ```yaml
+ * auth:
+ *   login:
+ *     title: Sign In
+ * greeting: Hello
  * ```
- * Parsed as: `{ "auth.login.title": "Sign In" }`
+ * Parsed as: `{ "auth.login.title": "Sign In", greeting: "Hello" }`
  *
- * @module adapters/format/json-nested
+ * @module adapters/format/yaml
  */
 
+import { load, dump } from 'js-yaml';
 import type { TranslationMap } from '../../types';
 import type { IFormatAdapter, SerializeOptions } from '../../interfaces/format-adapter';
 
@@ -51,7 +49,7 @@ function flattenObject(
  * Unflattens a dot-separated key map into a deeply nested object tree.
  *
  * @param map - Flat {@link TranslationMap} with dot-separated keys
- * @returns A nested object suitable for JSON serialization
+ * @returns A nested object suitable for YAML serialization
  */
 function unflattenObject(map: TranslationMap): Record<string, unknown> {
   const result: Record<string, unknown> = {};
@@ -78,49 +76,53 @@ function unflattenObject(map: TranslationMap): Record<string, unknown> {
 }
 
 /**
- * Adapter that handles nested JSON translation files.
+ * Adapter that handles nested YAML translation files.
  *
  * On {@link parse}, nested keys are flattened to dot-separated paths.
  * On {@link serialize}, dot-separated paths are expanded back into a nested
- * object before writing JSON.
+ * object before writing YAML.
+ *
+ * The {@link detect} method returns `true` only when the content is valid YAML
+ * but **not** valid JSON, which prevents overlap with JSON adapters.
  *
  * This adapter is stateless and safe for concurrent use.
  */
-export class JsonNestedAdapter implements IFormatAdapter {
+export class YamlAdapter implements IFormatAdapter {
   /** @inheritdoc */
-  readonly formatId = 'json-nested';
+  readonly formatId = 'yaml';
 
   /** @inheritdoc */
-  readonly fileExtension = '.json';
+  readonly fileExtension = '.yaml';
 
   /**
-   * Parses a nested JSON string into a flat {@link TranslationMap}.
+   * Parses a nested YAML string into a flat {@link TranslationMap}.
    *
    * Nested object keys are joined with a `.` separator to form flat keys.
    *
-   * @param content - Raw nested JSON string
+   * @param content - Raw nested YAML string
    * @returns A flat map of dot-separated translation keys to string values
-   * @throws {Error} If the content is not valid JSON
+   * @throws {Error} If the content is not valid YAML or does not produce an object
    */
   parse(content: string): TranslationMap {
-    const parsed = JSON.parse(content) as Record<string, unknown>;
-    return flattenObject(parsed);
+    const parsed = load(content);
+    if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
+      throw new Error('YamlAdapter: content did not parse to a YAML object');
+    }
+    return flattenObject(parsed as Record<string, unknown>);
   }
 
   /**
-   * Serializes a flat {@link TranslationMap} into a nested JSON string.
+   * Serializes a flat {@link TranslationMap} into a nested YAML string.
    *
    * Dot-separated keys are expanded into nested objects before serialization.
    *
    * @param map - Flat translation map with dot-separated keys
    * @param options - Optional serialization options
-   * @param options.pretty - Whether to pretty-print output (default: `true`)
    * @param options.indent - Number of spaces for indentation (default: `2`)
-   * @param options.sortKeys - Whether to sort top-level keys alphabetically (default: `false`)
-   * @returns A nested JSON string representing the translation map
+   * @param options.sortKeys - Whether to sort keys alphabetically (default: `false`)
+   * @returns A nested YAML string representing the translation map
    */
   serialize(map: TranslationMap, options?: SerializeOptions): string {
-    const pretty = options?.pretty ?? true;
     const indent = options?.indent ?? 2;
     const sortKeys = options?.sortKeys ?? false;
 
@@ -129,27 +131,32 @@ export class JsonNestedAdapter implements IFormatAdapter {
       : map;
 
     const nested = unflattenObject(source);
-    return JSON.stringify(nested, null, pretty ? indent : 0);
+    return dump(nested, { indent, sortKeys });
   }
 
   /**
-   * Detects whether the given content is a nested JSON translation file.
+   * Detects whether the given content is a YAML translation file.
    *
-   * Returns `true` when the content is valid JSON whose root is an object
-   * and at least one top-level value is itself an object (indicating nesting).
+   * Returns `true` when the content parses as valid YAML that produces an
+   * object root, **and** the content is not valid JSON. This ensures JSON files
+   * are not mis-detected as YAML (since JSON is a subset of YAML).
    *
    * @param content - Raw string content to inspect
-   * @returns `true` if the content looks like a nested JSON file
+   * @returns `true` if the content looks like a YAML (non-JSON) file
    */
   detect(content: string): boolean {
+    // Reject content that is valid JSON — JSON is technically valid YAML,
+    // but it should be handled by a JSON adapter instead.
     try {
-      const parsed = JSON.parse(content) as unknown;
-      if (typeof parsed !== 'object' || parsed === null || Array.isArray(parsed)) {
-        return false;
-      }
-      return Object.values(parsed as Record<string, unknown>).some(
-        (v) => typeof v === 'object' && v !== null && !Array.isArray(v),
-      );
+      JSON.parse(content);
+      return false;
+    } catch {
+      // Not JSON — proceed to check YAML validity
+    }
+
+    try {
+      const parsed = load(content);
+      return typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed);
     } catch {
       return false;
     }

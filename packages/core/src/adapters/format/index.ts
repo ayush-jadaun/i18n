@@ -9,3 +9,5 @@
 
 export { JsonFlatAdapter } from './json-flat.adapter';
 export { JsonNestedAdapter } from './json-nested.adapter';
+export { YamlAdapter } from './yaml.adapter';
+export { PoAdapter } from './po.adapter';
