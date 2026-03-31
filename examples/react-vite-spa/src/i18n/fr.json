@@ -1,0 +1,13 @@
+{
+  "greeting": "Bonjour, {name} !",
+  "welcome": "Bienvenue sur la plateforme i18n",
+  "items_count": "{count, plural, one {Vous avez # article} other {Vous avez # articles}}",
+  "language": "Langue",
+  "description": "Ceci est une démo de la plateforme d'automatisation i18n.",
+  "nav.home": "Accueil",
+  "nav.about": "À propos",
+  "nav.settings": "Paramètres",
+  "buttons.save": "Enregistrer",
+  "buttons.cancel": "Annuler",
+  "buttons.delete": "Supprimer"
+}

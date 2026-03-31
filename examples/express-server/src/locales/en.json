@@ -1,0 +1,15 @@
+{
+  "greeting": "Hello, {name}!",
+  "welcome": "Welcome to the i18n Platform",
+  "items_count": "{count, plural, one {You have # item} other {You have # items}}",
+  "language": "Language",
+  "description": "This is a demo of the i18n automation platform.",
+  "nav.home": "Home",
+  "nav.about": "About",
+  "nav.settings": "Settings",
+  "buttons.save": "Save",
+  "buttons.cancel": "Cancel",
+  "buttons.delete": "Delete",
+  "errors.not_found": "Resource not found.",
+  "errors.server": "An unexpected server error occurred."
+}
