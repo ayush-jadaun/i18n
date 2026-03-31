@@ -9,6 +9,12 @@ import { namespaces } from './namespaces';
 import { translationKeys } from './translation-keys';
 import { translations } from './translations';
 import { translationHistory } from './translation-history';
+import { translationReviews } from './translation-reviews';
+import { keyContexts } from './key-contexts';
+import { apiKeys } from './api-keys';
+import { mtConfigs } from './mt-configs';
+import { mtQualityScores } from './mt-quality-scores';
+import { auditLog } from './audit-log';
 
 describe('Database Schema', () => {
   describe('organizations table', () => {
@@ -129,6 +135,98 @@ describe('Database Schema', () => {
       expect(columns.changedBy).toBeDefined();
       expect(columns.changeSource).toBeDefined();
       expect(columns.changedAt).toBeDefined();
+    });
+  });
+
+  describe('translationReviews table', () => {
+    it('should have required columns', () => {
+      const columns = getTableColumns(translationReviews);
+      expect(columns.id).toBeDefined();
+      expect(columns.translationId).toBeDefined();
+      expect(columns.reviewerId).toBeDefined();
+      expect(columns.action).toBeDefined();
+      expect(columns.comment).toBeDefined();
+      expect(columns.reviewedAt).toBeDefined();
+    });
+  });
+
+  describe('keyContexts table', () => {
+    it('should have required columns', () => {
+      const columns = getTableColumns(keyContexts);
+      expect(columns.id).toBeDefined();
+      expect(columns.keyId).toBeDefined();
+      expect(columns.type).toBeDefined();
+      expect(columns.value).toBeDefined();
+      expect(columns.description).toBeDefined();
+      expect(columns.createdAt).toBeDefined();
+    });
+  });
+
+  describe('apiKeys table', () => {
+    it('should have required columns', () => {
+      const columns = getTableColumns(apiKeys);
+      expect(columns.id).toBeDefined();
+      expect(columns.projectId).toBeDefined();
+      expect(columns.name).toBeDefined();
+      expect(columns.keyHash).toBeDefined();
+      expect(columns.keyPrefix).toBeDefined();
+      expect(columns.scopes).toBeDefined();
+      expect(columns.environment).toBeDefined();
+      expect(columns.expiresAt).toBeDefined();
+      expect(columns.lastUsedAt).toBeDefined();
+      expect(columns.createdAt).toBeDefined();
+    });
+  });
+
+  describe('mtConfigs table', () => {
+    it('should have required columns', () => {
+      const columns = getTableColumns(mtConfigs);
+      expect(columns.id).toBeDefined();
+      expect(columns.projectId).toBeDefined();
+      expect(columns.sourceLocale).toBeDefined();
+      expect(columns.targetLocale).toBeDefined();
+      expect(columns.provider).toBeDefined();
+      expect(columns.enabled).toBeDefined();
+      expect(columns.autoTranslate).toBeDefined();
+      expect(columns.autoApproveThreshold).toBeDefined();
+      expect(columns.providerConfig).toBeDefined();
+      expect(columns.costBudgetMonthly).toBeDefined();
+      expect(columns.costSpentMonthly).toBeDefined();
+      expect(columns.createdAt).toBeDefined();
+    });
+  });
+
+  describe('mtQualityScores table', () => {
+    it('should have required columns', () => {
+      const columns = getTableColumns(mtQualityScores);
+      expect(columns.id).toBeDefined();
+      expect(columns.mtConfigId).toBeDefined();
+      expect(columns.provider).toBeDefined();
+      expect(columns.localePair).toBeDefined();
+      expect(columns.qualityScore).toBeDefined();
+      expect(columns.totalTranslations).toBeDefined();
+      expect(columns.acceptedWithoutEdit).toBeDefined();
+      expect(columns.acceptedWithEdit).toBeDefined();
+      expect(columns.rejected).toBeDefined();
+      expect(columns.windowStart).toBeDefined();
+      expect(columns.windowEnd).toBeDefined();
+    });
+  });
+
+  describe('auditLog table', () => {
+    it('should have required columns', () => {
+      const columns = getTableColumns(auditLog);
+      expect(columns.id).toBeDefined();
+      expect(columns.orgId).toBeDefined();
+      expect(columns.projectId).toBeDefined();
+      expect(columns.userId).toBeDefined();
+      expect(columns.action).toBeDefined();
+      expect(columns.resourceType).toBeDefined();
+      expect(columns.resourceId).toBeDefined();
+      expect(columns.oldValue).toBeDefined();
+      expect(columns.newValue).toBeDefined();
+      expect(columns.ipAddress).toBeDefined();
+      expect(columns.createdAt).toBeDefined();
     });
   });
 });
