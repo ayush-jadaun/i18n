@@ -32,7 +32,6 @@ export {
 export type {
   CreateProject,
   UpdateProject,
-  ProjectConfig,
 } from './project.schema';
 
 export {
@@ -65,7 +64,6 @@ export {
   TriggerMtSchema,
 } from './mt.schema';
 export type {
-  MachineTranslationConfig,
   TriggerMt,
 } from './mt.schema';
 

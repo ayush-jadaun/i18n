@@ -7,6 +7,14 @@
  * @packageDocumentation
  */
 
-// Types will be exported here as they are created
+// ── Types ──────────────────────────────────────────────────
 export * from './types';
+
+// ── Interfaces (Adapter Contracts) ─────────────────────────
 export * from './interfaces';
+
+// ── Validation Schemas (Zod) ───────────────────────────────
+export * from './schemas';
+
+// ── Errors ─────────────────────────────────────────────────
+export * from './errors';
