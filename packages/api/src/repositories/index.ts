@@ -9,3 +9,5 @@
  */
 
 export * as userRepository from './user.repository.js';
+export * as organizationRepository from './organization.repository.js';
+export * as memberRepository from './member.repository.js';
