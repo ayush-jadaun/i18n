@@ -11,3 +11,4 @@
 export { authRoutes } from './auth.routes.js';
 export { orgRoutes } from './org.routes.js';
 export { projectRoutes } from './project.routes.js';
+export { translationRoutes } from './translation.routes.js';
