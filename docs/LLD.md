@@ -22,16 +22,16 @@
 
 ```mermaid
 graph TD
-    CORE["@i18n-platform/core<br/>(types · interfaces · adapters · schemas · errors)"]
-    DB["@i18n-platform/database<br/>(drizzle schema · migrations · seed)"]
-    API["@i18n-platform/api<br/>(fastify · routes · services · repositories)"]
-    CLI["@i18n-platform/cli<br/>(commander · 10 commands)"]
-    SDKJS["@i18n-platform/sdk-js<br/>(translator · providers · events)"]
-    SDKREACT["@i18n-platform/sdk-react<br/>(I18nProvider · useTranslation · Trans)"]
-    SDKNODE["@i18n-platform/sdk-node<br/>(server-side · SSR · SSG)"]
-    SDKRN["@i18n-platform/sdk-react-native<br/>(AsyncStorage · RN bindings)"]
-    DASH["@i18n-platform/dashboard<br/>(Next.js · App Router)"]
-    CDN["apps/cdn-publisher<br/>(BundleGenerator · VersionManager · CdnPublisher)"]
+    CORE[core - types, interfaces, adapters, schemas, errors]
+    DB[database - drizzle schema, migrations, seed]
+    API[api - fastify, routes, services, repositories]
+    CLI[cli - commander, 10 commands]
+    SDKJS[sdk-js - translator, providers, events]
+    SDKREACT[sdk-react - I18nProvider, useTranslation, Trans]
+    SDKNODE[sdk-node - server-side, SSR, SSG]
+    SDKRN[sdk-react-native - AsyncStorage, RN bindings]
+    DASH[dashboard - Next.js, App Router]
+    CDN[cdn-publisher - BundleGenerator, VersionManager]
 
     CORE --> DB
     CORE --> API
@@ -562,7 +562,7 @@ sequenceDiagram
     participant JWT as fastify-jwt
 
     note over C,JWT: Registration
-    C->>API: POST /api/v1/auth/register<br/>{ email, name, password }
+    C->>API: POST /api/v1/auth/register - { email, name, password }
     API->>API: Zod.parse(CreateUserSchema)
     API->>DB: INSERT INTO users (email, name, bcrypt(password))
     DB-->>API: User row
@@ -573,7 +573,7 @@ sequenceDiagram
     API-->>C: 201 { accessToken, refreshToken, user }
 
     note over C,JWT: Login
-    C->>API: POST /api/v1/auth/login<br/>{ email, password }
+    C->>API: POST /api/v1/auth/login - { email, password }
     API->>DB: SELECT * FROM users WHERE email = ?
     DB-->>API: User row
     API->>API: bcrypt.compare(password, hash)
@@ -581,7 +581,7 @@ sequenceDiagram
     API-->>C: 200 { accessToken, refreshToken, user }
 
     note over C,JWT: Refresh (token rotation)
-    C->>API: POST /api/v1/auth/refresh<br/>{ refreshToken }
+    C->>API: POST /api/v1/auth/refresh - { refreshToken }
     API->>JWT: jwt.verify(refreshToken)
     JWT-->>API: payload { id, email }
     API->>DB: SELECT * FROM users WHERE id = ?
@@ -591,7 +591,7 @@ sequenceDiagram
     API-->>C: 200 { accessToken, refreshToken }
 
     note over C,JWT: Authenticated request
-    C->>API: GET /api/v1/auth/me<br/>Authorization: Bearer <accessToken>
+    C->>API: GET /api/v1/auth/me - Authorization: Bearer <accessToken>
     API->>JWT: request.jwtVerify()
     JWT-->>API: payload → request.user = { id, email }
     API->>DB: SELECT * FROM users WHERE id = ?
@@ -606,7 +606,7 @@ sequenceDiagram
     participant API as Fastify API
     participant DB as PostgreSQL
 
-    SDK->>API: GET /api/v1/sdk/:projectId/:locale<br/>Authorization: Bearer i18n_abc12345...
+    SDK->>API: GET /api/v1/sdk/:projectId/:locale - Authorization: Bearer i18n_abc12345...
 
     API->>API: Extract rawKey from Authorization header
     API->>API: Validate prefix format "i18n_"
@@ -698,7 +698,7 @@ sequenceDiagram
     PUB->>BG: generate(rows, version)
     BG->>BG: Group rows by locale + namespace
     BG->>BG: Build JSON objects { [key]: value }
-    BG->>BG: Assign storage key:<br/>"bundles/{projectId}/{locale}/{ns}/{version}.json"
+    BG->>BG: Assign storage key: - "bundles/{projectId}/{locale}/{ns}/{version}.json"
     BG-->>PUB: TranslationBundle[]
     PUB->>VM: createLatestAliases(bundles)
     VM->>VM: Replace "v\d+.json" → "latest.json" in each key

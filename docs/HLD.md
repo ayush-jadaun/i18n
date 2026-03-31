@@ -63,8 +63,8 @@ graph TB
     end
 
     subgraph Tools
-        CLI[CLI<br/>@i18n-platform/cli]
-        DASH[Dashboard<br/>Next.js]
+        CLI[CLI]
+        DASH[Dashboard - Next.js]
     end
 
     subgraph SDKs
@@ -75,8 +75,8 @@ graph TB
     end
 
     subgraph Platform
-        API[REST API<br/>Fastify · Port 3000]
-        CDN_PUB[CDN Publisher<br/>apps/cdn-publisher]
+        API[REST API - Fastify]
+        CDN_PUB[CDN Publisher]
     end
 
     subgraph Storage
@@ -174,18 +174,18 @@ sequenceDiagram
     participant DB as PostgreSQL
 
     Dev->>CLI: i18n push
-    CLI->>FS: Glob source files<br/>(config.source.include)
+    CLI->>FS: Glob source files - (config.source.include)
     FS-->>CLI: File paths
-    CLI->>CLI: ReactExtractor + VanillaJsExtractor<br/>→ ExtractedKey[]
-    CLI->>API: POST /api/v1/projects/:id/keys<br/>{ keys: [{key, defaultValue, namespace}] }
-    API->>DB: INSERT INTO translation_keys<br/>ON CONFLICT DO NOTHING
+    CLI->>CLI: ReactExtractor + VanillaJsExtractor - → ExtractedKey[]
+    CLI->>API: POST /api/v1/projects/:id/keys - { keys: [{key, defaultValue, namespace}] }
+    API->>DB: INSERT INTO translation_keys - ON CONFLICT DO NOTHING
     DB-->>API: { created, skipped }
     API-->>CLI: 201 { created, skipped }
     CLI-->>Dev: "Pushed 42 key(s)"
 
     Dev->>CLI: i18n pull --locale fr,de
     CLI->>API: GET /api/v1/projects/:id/translations/fr
-    API->>DB: SELECT translations JOIN translation_keys<br/>WHERE status IN ('approved','published')
+    API->>DB: SELECT translations JOIN translation_keys - WHERE status IN ('approved','published')
     DB-->>API: TranslationRow[]
     API-->>CLI: { translations: { [key]: value } }
     CLI->>FS: Write public/locales/fr/common.json
@@ -215,19 +215,19 @@ sequenceDiagram
     API-->>DASH: { keys, total }
 
     TR->>DASH: Save translation value
-    DASH->>API: PUT /api/v1/projects/:id/translations/fr/:keyId<br/>{ value: "Bonjour", status: "pending_review" }
-    API->>DB: INSERT/UPDATE translations<br/>INSERT translation_history
+    DASH->>API: PUT /api/v1/projects/:id/translations/fr/:keyId - { value: "Bonjour", status: "pending_review" }
+    API->>DB: INSERT/UPDATE translations - INSERT translation_history
     API-->>DASH: { translation }
 
     TR->>DASH: Approve translation
-    DASH->>API: POST /api/v1/projects/:id/translations/fr/:keyId/review<br/>{ action: "approve" }
-    API->>DB: UPDATE translations SET status = 'approved'<br/>INSERT translation_reviews
+    DASH->>API: POST /api/v1/projects/:id/translations/fr/:keyId/review - { action: "approve" }
+    API->>DB: UPDATE translations SET status = 'approved' - INSERT translation_reviews
     API-->>DASH: { review }
 
     TR->>DASH: Publish project
     DASH->>API: POST /api/v1/projects/:id/translations/publish
-    API->>DB: UPDATE translations SET status = 'published'<br/>WHERE status = 'approved'
-    API->>CDN: BundleGenerator.generate(rows)<br/>VersionManager.createLatestAliases()<br/>IStorageAdapter.upload()
+    API->>DB: UPDATE translations SET status = 'published' - WHERE status = 'approved'
+    API->>CDN: BundleGenerator.generate(rows) - VersionManager.createLatestAliases() - IStorageAdapter.upload()
     CDN-->>API: PublishResult { version, bundleCount }
     API-->>DASH: { published: 128 }
 ```
