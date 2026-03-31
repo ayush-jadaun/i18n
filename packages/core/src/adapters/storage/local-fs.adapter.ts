@@ -51,17 +51,18 @@ export interface LocalFsStorageConfig {
  * @internal
  */
 async function walkDir(dir: string): Promise<string[]> {
-  let entries: Awaited<ReturnType<typeof readdir>>;
+  let entries: string[];
   try {
-    entries = await readdir(dir, { withFileTypes: true });
+    entries = await readdir(dir);
   } catch {
     return [];
   }
 
   const results: string[] = [];
-  for (const entry of entries) {
-    const fullPath = join(dir, entry.name);
-    if (entry.isDirectory()) {
+  for (const name of entries) {
+    const fullPath = join(dir, name);
+    const info = await stat(fullPath);
+    if (info.isDirectory()) {
       const nested = await walkDir(fullPath);
       results.push(...nested);
     } else {

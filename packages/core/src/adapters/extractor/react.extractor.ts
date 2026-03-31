@@ -174,7 +174,7 @@ function extractFromSource(
       continue;
     }
 
-    const staticKey = match[2];
+    const staticKey = match[2] as string;
     const trailingArgs = match[3] ?? '';
 
     const { line, column } = lineColumnAt(source, match.index);

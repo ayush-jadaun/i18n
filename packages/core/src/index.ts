@@ -18,3 +18,6 @@ export * from './schemas';
 
 // ── Errors ─────────────────────────────────────────────────
 export * from './errors';
+
+// ── Adapter Implementations ────────────────────────────────
+export * from './adapters';
