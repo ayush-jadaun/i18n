@@ -11,3 +11,6 @@
 export * as userRepository from './user.repository.js';
 export * as organizationRepository from './organization.repository.js';
 export * as memberRepository from './member.repository.js';
+export * as projectRepository from './project.repository.js';
+export * as localeRepository from './locale.repository.js';
+export * as namespaceRepository from './namespace.repository.js';
