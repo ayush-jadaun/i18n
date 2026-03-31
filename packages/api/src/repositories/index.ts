@@ -8,4 +8,4 @@
  * @module repositories
  */
 
-// Repository classes will be exported here as they are implemented.
+export * as userRepository from './user.repository.js';

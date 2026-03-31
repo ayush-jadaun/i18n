@@ -8,4 +8,4 @@
  * @module services
  */
 
-// Service classes and factory functions will be exported here as they are implemented.
+export * as authService from './auth.service.js';

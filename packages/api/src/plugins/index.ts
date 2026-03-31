@@ -8,4 +8,5 @@
  * @module plugins
  */
 
-// Plugins will be exported here as they are implemented.
+export { default as jwtPlugin } from './jwt.js';
+export { default as databasePlugin } from './database.js';

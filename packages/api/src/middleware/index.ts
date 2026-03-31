@@ -8,4 +8,4 @@
  * @module middleware
  */
 
-// Middleware hooks and decorators will be exported here as they are implemented.
+export { authenticate } from './auth.js';
