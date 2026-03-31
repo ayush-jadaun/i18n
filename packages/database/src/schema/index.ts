@@ -1,3 +1,6 @@
 export * from './organizations';
 export * from './users';
 export * from './org-members';
+export * from './projects';
+export * from './project-locales';
+export * from './namespaces';
