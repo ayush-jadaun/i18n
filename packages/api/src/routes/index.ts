@@ -8,4 +8,4 @@
  * @module routes
  */
 
-// Route plugins will be exported here as they are implemented.
+export { authRoutes } from './auth.routes.js';

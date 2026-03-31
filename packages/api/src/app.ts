@@ -2,19 +2,30 @@
  * Fastify application factory.
  *
  * Responsible for constructing and configuring the Fastify instance:
- * registers global plugins (CORS, …) and mounts top-level routes such as
- * the health-check endpoint. Route-level plugins and business-logic routes
- * are added by the respective `routes/` modules as the platform grows.
+ * registers global plugins (CORS, JWT, database) and mounts top-level routes
+ * such as the health-check and authentication endpoints. Route-level plugins
+ * and business-logic routes are added by the respective `routes/` modules as
+ * the platform grows.
  *
  * @module app
  */
 
+import './types.js';
 import Fastify from 'fastify';
 import cors from '@fastify/cors';
 import type { Config } from './config.js';
+import jwtPlugin from './plugins/jwt.js';
+import databasePlugin from './plugins/database.js';
+import { authRoutes } from './routes/auth.routes.js';
 
 /**
  * Creates and configures a Fastify application instance.
+ *
+ * Registers in order:
+ * 1. CORS — cross-origin policy for browser clients
+ * 2. Database plugin — decorates `app.db` with a Drizzle connection
+ * 3. JWT plugin — registers `app.jwt`, `request.jwtVerify()`, etc.
+ * 4. Auth routes — `POST /api/v1/auth/register`, `login`, `refresh`, `GET /me`
  *
  * @param config - Validated server configuration produced by {@link loadConfig}.
  * @returns A fully initialised Fastify instance, ready to call `listen()` on.
@@ -34,10 +45,15 @@ export async function createApp(config: Config) {
     logger: { level: config.logLevel },
   });
 
+  // ── Global plugins ────────────────────────────────────────────────────────
+
   await app.register(cors, {
     origin: config.corsOrigins.split(',').map((s) => s.trim()),
     credentials: true,
   });
+
+  await app.register(databasePlugin, { config });
+  await app.register(jwtPlugin, { config });
 
   // ── Health check ──────────────────────────────────────────────────────────
   /**
@@ -52,6 +68,10 @@ export async function createApp(config: Config) {
     status: 'ok',
     timestamp: new Date().toISOString(),
   }));
+
+  // ── Feature routes ────────────────────────────────────────────────────────
+
+  await app.register(authRoutes, { prefix: '/api/v1/auth' });
 
   return app;
 }
