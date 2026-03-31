@@ -6,6 +6,9 @@ import { orgMembers } from './org-members';
 import { projects } from './projects';
 import { projectLocales } from './project-locales';
 import { namespaces } from './namespaces';
+import { translationKeys } from './translation-keys';
+import { translations } from './translations';
+import { translationHistory } from './translation-history';
 
 describe('Database Schema', () => {
   describe('organizations table', () => {
@@ -80,6 +83,52 @@ describe('Database Schema', () => {
       expect(columns.name).toBeDefined();
       expect(columns.description).toBeDefined();
       expect(columns.sortOrder).toBeDefined();
+    });
+  });
+
+  describe('translationKeys table', () => {
+    it('should have required columns', () => {
+      const columns = getTableColumns(translationKeys);
+      expect(columns.id).toBeDefined();
+      expect(columns.projectId).toBeDefined();
+      expect(columns.namespaceId).toBeDefined();
+      expect(columns.key).toBeDefined();
+      expect(columns.defaultValue).toBeDefined();
+      expect(columns.description).toBeDefined();
+      expect(columns.maxLength).toBeDefined();
+      expect(columns.metadata).toBeDefined();
+      expect(columns.isArchived).toBeDefined();
+      expect(columns.createdAt).toBeDefined();
+      expect(columns.updatedAt).toBeDefined();
+    });
+  });
+
+  describe('translations table', () => {
+    it('should have required columns', () => {
+      const columns = getTableColumns(translations);
+      expect(columns.id).toBeDefined();
+      expect(columns.keyId).toBeDefined();
+      expect(columns.locale).toBeDefined();
+      expect(columns.value).toBeDefined();
+      expect(columns.status).toBeDefined();
+      expect(columns.translatedBy).toBeDefined();
+      expect(columns.createdAt).toBeDefined();
+      expect(columns.updatedAt).toBeDefined();
+    });
+  });
+
+  describe('translationHistory table', () => {
+    it('should have required columns', () => {
+      const columns = getTableColumns(translationHistory);
+      expect(columns.id).toBeDefined();
+      expect(columns.translationId).toBeDefined();
+      expect(columns.oldValue).toBeDefined();
+      expect(columns.newValue).toBeDefined();
+      expect(columns.oldStatus).toBeDefined();
+      expect(columns.newStatus).toBeDefined();
+      expect(columns.changedBy).toBeDefined();
+      expect(columns.changeSource).toBeDefined();
+      expect(columns.changedAt).toBeDefined();
     });
   });
 });
