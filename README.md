@@ -2,8 +2,7 @@
 
 **Self-hosted i18n automation — an open-source alternative to Crowdin and Lokalise.**
 
-[![Build](https://img.shields.io/github/actions/workflow/status/ayush-jadaun/i18n/ci.yml?branch=main&label=build)](https://github.com/ayush-jadaun/i18n/actions)
-[![License: MIT](https://img.shields.io/badge/license-MIT-blue.svg)](./LICENSE)
+[![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](./LICENSE)
 [![Packages](https://img.shields.io/badge/packages-10-blueviolet)](#packages)
 [![Tests](https://img.shields.io/badge/tests-680-brightgreen)](#packages)
 
@@ -17,12 +16,12 @@ i18n-platform is a production-grade, fully self-hosted internationalization plat
 
 ## Features
 
-- **Web dashboard** — translator workspace with a rich editor, comment threads, import/export, and project-level statistics
+- **Web dashboard** — translator workspace with a rich editor, review workflow, import/export, and project-level statistics
 - **SDK suite** — first-class clients for React (hooks + context), Vanilla JS, Node.js, and React Native
 - **CLI toolchain** — `extract`, `push`, `pull`, `sync`, `validate`, `codegen` commands for any CI pipeline
-- **7 file formats** — JSON, YAML, PO/POT, XLIFF, Android XML, iOS `.strings`, and CSV
-- **AI / MT layer** — pluggable provider routing (DeepL, Google, OpenAI, etc.) with per-segment quality scoring and fallback chains
-- **Multi-tenant RBAC** — organisations, projects, and fine-grained roles (owner, manager, translator, reviewer)
+- **7 file formats** — JSON flat, JSON nested, YAML, PO, XLIFF, Android XML, iOS `.strings`
+- **AI / MT layer** — pluggable provider routing (DeepL, Google, OpenAI, Claude, Azure) with quality scoring and fallback chains
+- **Multi-tenant RBAC** — organizations, projects, and fine-grained roles (owner, admin, developer, translator, reviewer)
 - **3 delivery modes** — live REST API, edge CDN publishing, and bundled static output
 - **Full audit trail** — every translation change is versioned and attributable
 - **Docker Compose** — one command to stand up the full stack locally
@@ -33,30 +32,22 @@ i18n-platform is a production-grade, fully self-hosted internationalization plat
 
 ```mermaid
 graph TD
-    subgraph Clients
-        D[Dashboard\nNext.js 15]
-        CLI[CLI\n@i18n-platform/cli]
-        SDK[SDKs\nReact / JS / Node / RN]
-    end
+    D[Dashboard - Next.js 15]
+    CLI[CLI Tool]
+    SDK[SDKs - React, JS, Node, RN]
 
-    subgraph API Layer
-        A[Fastify API\n@i18n-platform/api]
-    end
+    A[Fastify REST API]
 
-    subgraph Data
-        PG[(PostgreSQL\nDrizzle ORM)]
-        RD[(Redis\nqueue + cache)]
-        S3[(Object Storage\nS3-compatible)]
-    end
+    PG[(PostgreSQL)]
+    RD[(Redis)]
+    S3[(S3 Storage)]
 
-    subgraph Translation
-        MT[MT Router\nDeepL · Google · OpenAI]
-        CDN[CDN Publisher\n@i18n-platform/cdn-publisher]
-    end
+    MT[MT Router - DeepL, Google, OpenAI]
+    CDN[CDN Publisher]
 
-    D -->|REST / WebSocket| A
-    CLI -->|REST| A
-    SDK -->|REST / bundle| A
+    D --> A
+    CLI --> A
+    SDK --> A
 
     A --> PG
     A --> RD
@@ -71,16 +62,16 @@ graph TD
 
 | Package | Description | Tests |
 |---|---|---|
-| `@i18n-platform/core` | Translation engine, file parsers, format adapters, MT orchestration, RBAC, audit log | 310 |
-| `@i18n-platform/database` | Drizzle ORM schema, migrations, and seed scripts | 15 |
-| `@i18n-platform/api` | Fastify REST API — projects, translations, users, webhooks, MT endpoints | 149 |
-| `@i18n-platform/cli` | Developer CLI — extract, push, pull, sync, validate, codegen | 20 |
-| `@i18n-platform/sdk-js` | Universal JavaScript SDK with lazy loading, caching, and CDN support | 63 |
-| `@i18n-platform/sdk-react` | React SDK — `I18nProvider`, `useTranslation`, `Trans` component | 25 |
-| `@i18n-platform/sdk-node` | Node.js SDK optimised for server-side rendering and API routes | 18 |
-| `@i18n-platform/sdk-react-native` | React Native SDK with Expo support and locale detection | 14 |
-| `@i18n-platform/cdn-publisher` | Publishes translation bundles to S3-compatible CDN origins | 38 |
-| `@i18n-platform/dashboard` | Next.js 15 web dashboard for translators and project managers | 28 |
+| `@i18n-platform/core` | Types, interfaces, 17 adapters, Zod schemas, errors | 310 |
+| `@i18n-platform/database` | Drizzle ORM schema (15 tables), migrations, seed | 15 |
+| `@i18n-platform/api` | Fastify REST API — auth, orgs, projects, translations, MT, import/export | 149 |
+| `@i18n-platform/cli` | Developer CLI — extract, push, pull, sync, validate, codegen, status, diff, ci | 20 |
+| `@i18n-platform/sdk-js` | Framework-agnostic JS SDK with interpolation, pluralization, 3 providers | 63 |
+| `@i18n-platform/sdk-react` | React SDK — `I18nProvider`, `useTranslation`, `Trans`, `LocaleSwitcher` | 25 |
+| `@i18n-platform/sdk-node` | Node.js SDK — Express/Fastify middleware, Accept-Language detection | 18 |
+| `@i18n-platform/sdk-react-native` | React Native SDK with AsyncStorage offline cache, device locale | 14 |
+| `@i18n-platform/cdn-publisher` | Versioned bundle generation and S3/R2 CDN publishing | 38 |
+| `@i18n-platform/dashboard` | Next.js 15 web dashboard — translation editor, stats, import/export | 28 |
 | **Total** | | **680** |
 
 ---
@@ -104,7 +95,7 @@ pnpm build
 pnpm test
 ```
 
-The API will be available at `http://localhost:3000` and the dashboard at `http://localhost:3001`.
+The API runs at `http://localhost:3000` and the dashboard at `http://localhost:3001`.
 
 ---
 
@@ -117,7 +108,7 @@ import { I18nProvider, useTranslation } from '@i18n-platform/sdk-react';
 
 function App() {
   return (
-    <I18nProvider projectId="my-project" locale="en">
+    <I18nProvider config={{ projectId: 'my-project', defaultLocale: 'en', delivery: 'bundled', translations: { en, fr } }}>
       <Greeting />
     </I18nProvider>
   );
@@ -128,7 +119,7 @@ function Greeting() {
   return (
     <>
       <h1>{t('greeting', { name: 'World' })}</h1>
-      <button onClick={() => setLocale('fr')}>Français</button>
+      <button onClick={() => setLocale('fr')}>Fran&ccedil;ais</button>
     </>
   );
 }
@@ -137,12 +128,34 @@ function Greeting() {
 ### Node.js
 
 ```ts
-import { createI18nClient } from '@i18n-platform/sdk-node';
+import { createI18nServer } from '@i18n-platform/sdk-node';
 
-const i18n = createI18nClient({ projectId: 'my-project', locale: 'en' });
-await i18n.init();
+const i18n = await createI18nServer({
+  projectId: 'my-project',
+  defaultLocale: 'en',
+  supportedLocales: ['en', 'fr', 'de'],
+  delivery: 'bundled',
+  translations: { en, fr, de },
+});
 
-console.log(i18n.t('welcome_message'));
+// Express middleware
+app.use(i18n.middleware());
+app.get('/hello', (req, res) => res.json({ message: req.t('greeting') }));
+```
+
+### Vanilla JS
+
+```ts
+import { createI18n } from '@i18n-platform/sdk-js';
+
+const i18n = createI18n({
+  projectId: 'my-project',
+  defaultLocale: 'en',
+  delivery: 'cdn',
+  cdnUrl: 'https://cdn.example.com/i18n',
+});
+
+console.log(i18n.t('greeting', { name: 'World' }));
 ```
 
 ---
@@ -150,23 +163,16 @@ console.log(i18n.t('welcome_message'));
 ## CLI Usage
 
 ```bash
-# Initialise a project config
-i18n init
-
-# Extract translation keys from source files
-i18n extract --source ./src
-
-# Push source strings to the platform
-i18n push
-
-# Pull translated strings for specific locales
-i18n pull --locale fr,de,ja
-
-# Validate translation files for missing keys
-i18n validate
-
-# Generate TypeScript types from your keys
-i18n codegen --out ./src/i18n/types.ts
+i18n init                          # Initialize config file
+i18n extract --source ./src        # Extract keys from source code
+i18n push                          # Push keys to the platform
+i18n pull --locale fr,de,ja        # Pull translations
+i18n sync                          # Push + pull in one step
+i18n validate                      # Check coverage and consistency
+i18n codegen --output ./src/i18n   # Generate TypeScript types
+i18n status                        # Show coverage per locale
+i18n diff                          # Show local vs remote changes
+i18n ci --min-coverage 95          # CI gate (exits non-zero if below threshold)
 ```
 
 ---
@@ -175,16 +181,16 @@ i18n codegen --out ./src/i18n/types.ts
 
 | Layer | Technology |
 |---|---|
-| Language | TypeScript 5.7 |
-| API server | Fastify 5 |
+| Language | TypeScript 5 (strict mode) |
+| API Server | Fastify 5 |
 | Dashboard | Next.js 15 (App Router) |
 | ORM | Drizzle ORM |
 | Database | PostgreSQL 16 |
 | Cache / Queue | Redis 7 |
 | Validation | Zod |
 | Monorepo | Turborepo + pnpm workspaces |
-| Testing | Vitest |
-| Containerisation | Docker Compose |
+| Testing | Vitest + K6 |
+| Containerization | Docker Compose |
 
 ---
 
@@ -192,8 +198,8 @@ i18n codegen --out ./src/i18n/types.ts
 
 | Document | Description |
 |---|---|
-| [`docs/HLD.md`](./docs/HLD.md) | High-level system design — components, data flow, deployment |
-| [`docs/LLD.md`](./docs/LLD.md) | Low-level design — schema, API contracts, module internals |
+| [`docs/HLD.md`](./docs/HLD.md) | High-level design — architecture, data flows, deployment |
+| [`docs/LLD.md`](./docs/LLD.md) | Low-level design — schema, API contracts, adapter pattern |
 | [`docs/guides/getting-started.md`](./docs/guides/getting-started.md) | Step-by-step setup guide |
 | [`docs/guides/cli.md`](./docs/guides/cli.md) | Full CLI reference |
 | [`docs/guides/deployment.md`](./docs/guides/deployment.md) | Production deployment guide |
@@ -202,15 +208,13 @@ i18n codegen --out ./src/i18n/types.ts
 
 ## Examples
 
-Ready-to-run example projects are in the [`examples/`](./examples) directory:
-
 | Example | Stack |
 |---|---|
 | [`examples/nextjs-app-router`](./examples/nextjs-app-router) | Next.js 15 App Router |
 | [`examples/react-vite-spa`](./examples/react-vite-spa) | React + Vite SPA |
 | [`examples/express-server`](./examples/express-server) | Express.js server-side |
 | [`examples/vanilla-html`](./examples/vanilla-html) | Plain HTML + JS |
-| [`examples/cdn-publisher`](./examples/cdn-publisher) | CDN bundle delivery |
+| [`examples/email-templates`](./examples/email-templates) | Email i18n with Node SDK |
 
 ---
 
@@ -219,17 +223,18 @@ Ready-to-run example projects are in the [`examples/`](./examples) directory:
 ```
 i18n/
 ├── packages/
-│   ├── core/               # Translation engine and shared utilities
-│   ├── database/           # Schema, migrations, seeds
+│   ├── core/               # Types, interfaces, adapters, schemas
+│   ├── database/           # Drizzle schema, migrations, seed
 │   ├── api/                # Fastify REST API
 │   ├── cli/                # Developer CLI
-│   ├── sdk-js/             # Universal JS SDK
+│   ├── sdk-js/             # Framework-agnostic JS SDK
 │   ├── sdk-react/          # React SDK
 │   ├── sdk-node/           # Node.js SDK
 │   ├── sdk-react-native/   # React Native SDK
-│   └── cdn-publisher/      # CDN bundle publisher
-├── apps/
+│   ├── cdn-publisher/      # CDN bundle publisher
 │   └── dashboard/          # Next.js 15 web dashboard
+├── apps/
+│   └── cdn-publisher/      # CDN publisher worker
 ├── examples/               # Runnable example projects
 ├── docs/                   # HLD, LLD, and guides
 ├── k6/                     # K6 performance test scripts
@@ -242,4 +247,4 @@ i18n/
 
 ## License
 
-[MIT](./LICENSE) — Ayush Jadaun
+[Apache License 2.0](./LICENSE)
