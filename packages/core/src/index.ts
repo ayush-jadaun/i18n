@@ -9,3 +9,4 @@
 
 // Types will be exported here as they are created
 export * from './types';
+export * from './interfaces';
