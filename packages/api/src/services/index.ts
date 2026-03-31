@@ -10,3 +10,4 @@
 
 export * as authService from './auth.service.js';
 export * as organizationService from './organization.service.js';
+export * as projectService from './project.service.js';
