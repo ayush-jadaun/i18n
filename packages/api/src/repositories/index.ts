@@ -2,8 +2,7 @@
  * Data-access repository layer.
  *
  * Repositories wrap Drizzle ORM queries and provide a typed interface for
- * reading and writing domain entities. For now this module serves as a
- * placeholder.
+ * reading and writing domain entities.
  *
  * @module repositories
  */
@@ -17,3 +16,5 @@ export * as namespaceRepository from './namespace.repository.js';
 export * as keyRepository from './key.repository.js';
 export * as translationRepository from './translation.repository.js';
 export * as reviewRepository from './review.repository.js';
+export * as apiKeyRepository from './api-key.repository.js';
+export * as auditRepository from './audit.repository.js';
