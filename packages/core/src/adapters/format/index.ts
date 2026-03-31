@@ -11,3 +11,6 @@ export { JsonFlatAdapter } from './json-flat.adapter';
 export { JsonNestedAdapter } from './json-nested.adapter';
 export { YamlAdapter } from './yaml.adapter';
 export { PoAdapter } from './po.adapter';
+export { XliffAdapter } from './xliff.adapter';
+export { AndroidXmlAdapter } from './android-xml.adapter';
+export { IosStringsAdapter } from './ios-strings.adapter';
